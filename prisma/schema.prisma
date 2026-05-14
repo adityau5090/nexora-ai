@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  chat          Chat[]
+  sessions      Session[]
+  interviewReports InterviewReport[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Chat {
+  id        String    @id @default(cuid())
+  title     String
+  model     String
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   Message[]
+
+  @@index([userId, updatedAt])
+  @@map("chat")
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  messageRole MessageRole @default(USER)
+  messageType MessageType @default(NORMAL)
+  content     String
+  model       String?
+  chatId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  chat        Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
+  @@map("message")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+enum MessageType {
+  NORMAL
+  ERROR
+  TOOL_CALL
+}
+
+model InterviewReport {
+  id                   String                 @id @default(cuid())
+  resume               String
+  selfDescription      String
+  matchScore           Int?
+  title                String
+
+  userId               String?
+  user                 User?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  technicalQuestions   TechnicalQuestion[]
+  behavioralQuestions  BehavioralQuestion[]
+  skillGaps            SkillGap[]
+  preparationPlan      PreparationPlan[]
+
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  @@index([userId])
+}
+
+model TechnicalQuestion {
+  id          String           @id @default(cuid())
+  question    String
+  intention   String
+  answer      String
+
+  reportId    String
+  report      InterviewReport  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+model BehavioralQuestion {
+  id          String           @id @default(cuid())
+  question    String
+  intention   String
+  answer      String
+
+  reportId    String
+  report      InterviewReport  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+model SkillGap {
+  id          String           @id @default(cuid())
+  skill       String
+  severity    Severity
+
+  reportId    String
+  report      InterviewReport  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+model PreparationPlan {
+  id          String           @id @default(cuid())
+  day         String
+  focus       String
+  tasks       String[]
+
+  reportId    String
+  report      InterviewReport  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([reportId])
+}
+
+enum Severity {
+  low
+  medium
+  high
+}

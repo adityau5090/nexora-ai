@@ -1,0 +1,36 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Next.js build output
+.next
+out
+
+# Logs
+logs
+*.log
+
+# Environment files (VERY IMPORTANT)
+.env
+.env.local
+.env.development
+.env.production
+
+# Git
+.git
+.gitignore
+
+# Docker files (optional)
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Prisma (optional tweak below)
+# prisma/migrations (⚠️ see note below)
