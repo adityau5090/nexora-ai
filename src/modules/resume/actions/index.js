@@ -2,8 +2,6 @@
 
 import { currentUser } from "@/modules/authentication_module/actions"
 import { db } from "@/lib/db"
-// const pdfParse = (await import("pdf-parse")).default;
-import { Severity } from "@/generated/prisma"
 import pdfParse from "pdf-parse-fork"
 import { generateReport } from "../services/ai-report"
 
@@ -18,8 +16,6 @@ const generateInterviewReport =async (values) => {
                 message: "Unauthorized user"
             }
         }
-        // console.log("User : ", user);
-        // console.log("Values :",values);
 
         const file = values.get("file")
         const selfDescription = values.get("selfDescription")
